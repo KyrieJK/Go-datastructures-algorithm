@@ -53,3 +53,83 @@ func (list *LinkedList) RemoveByValue(i int) bool{
 	}
 	return false
 }
+
+/* 通过下标索引删除链表中的元素 */
+func (list *LinkedList) RemoveByIndex(i int) bool{
+	if list.head == nil{
+		return false
+	}
+
+	if i<0{
+		return false
+	}
+	if i==0{
+		list.head = list.head.next
+		return true
+	}
+	current := list.head
+	for j:=1;j<i;j++{
+		if current.next.next == nil{
+			return false
+		}
+
+		current = current.next
+	}
+	current.next = current.next.next
+	return true
+}
+
+func (list *LinkedList) SearchValue(i int) bool{
+	if list.head == nil{
+		return false
+	}
+
+	current := list.head
+	for current != nil{
+		if current.data == i{
+			return true
+		}
+		current = current.next
+	}
+
+	return false
+}
+
+func (list *LinkedList) GetFirst() (int,bool){
+	if list.head == nil{
+		return 0,false
+	}
+	return list.head.data,true
+}
+
+func (list *LinkedList) GetLast() (int,bool){
+	if list.head == nil{
+		return 0, false
+	}
+
+	current := list.head
+	for current.next != nil{
+		current = current.next
+	}
+	return current.data,true
+}
+
+func (list *LinkedList) GetSize() int{
+	count := 0
+	current := list.head
+	for current != nil{
+		current = current.next
+		count++
+	}
+	return count
+}
+
+func (list *LinkedList) GetItems() []int{
+	var items []int
+	current := list.head
+	for current != nil{
+		items = append(items,current.data)
+		current = current.next
+	}
+	return items
+}
