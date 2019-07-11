@@ -35,6 +35,8 @@ func main(){
 	case value:=<-string_chan:
 		fmt.Println(value)
 	}
+	a := 8 | 1
+	fmt.Println(a)
 }
 
 // type student struct{
