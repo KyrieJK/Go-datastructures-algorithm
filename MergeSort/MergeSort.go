@@ -5,7 +5,7 @@ func MergeSort(array []int,leftIndex,rightIndex int){
 		midIndex := int((leftIndex+rightIndex)/2)
 		MergeSort(array,leftIndex,midIndex)
 		MergeSort(array,midIndex+1,rightIndex)
-		merge(array.leftIndex,midIndex,rightIndex)
+		merge(array,leftIndex,midIndex,rightIndex)
 	}
 }
 
