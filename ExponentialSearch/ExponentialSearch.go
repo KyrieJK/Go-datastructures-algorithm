@@ -1,7 +1,5 @@
 package ExponentialSearch
 
-import "math/*"
-
 func ExponentialSearch(array []int,number int) int{
 	if array == nil || len(array) ==0{
 		return -1
@@ -11,7 +9,14 @@ func ExponentialSearch(array []int,number int) int{
 	for bound < len(array) && array[bound] < number{
 		bound *= 2
 	}
-	return BinarySearch(array,bound/2,min(bound+1,len(array)),number)
+	return BinarySearch(array,bound/2,Min(bound+1,len(array)),number)
+}
+
+func Min(x,y int) int{
+	if x<y{
+		return x
+	}
+	return y
 }
 
 func BinarySearch(array []int,low,high int,number int) int{
