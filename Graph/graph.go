@@ -1,11 +1,11 @@
-package main
+package Graph
 
 import (
 	"errors"
 	"fmt"
 )
 
-type VertexId uint
+type VertexId int
 
 type Vertices []VertexId
 
@@ -15,8 +15,8 @@ type Edge struct {
 }
 
 type graph struct {
-	edges      map[VertexId]map[VertexId]uint //graph中边的表示数据结构
-	edgesCount uint
+	edges      map[VertexId]map[VertexId]int //graph中边的表示数据结构
+	edgesCount int
 	isDirected bool //标识有向、无向图
 }
 
@@ -58,7 +58,7 @@ func (g *graph) CheckVertex(vertex VertexId) bool {
 
 func (g *graph) TouchVertex(vertex VertexId) {
 	if _, ok := g.edges[vertex]; !ok {
-		g.edges[vertex] = make(map[VertexId]uint)
+		g.edges[vertex] = make(map[VertexId]int)
 	}
 }
 
@@ -68,7 +68,7 @@ func (g *graph) AddVertex(vertex VertexId) error {
 		return errors.New("Vertex already exists")
 	}
 
-	g.edges[vertex] = make(map[VertexId]uint)
+	g.edges[vertex] = make(map[VertexId]int)
 	return nil
 }
 
@@ -90,18 +90,18 @@ func (g *graph) VerticesCount() int {
 }
 
 func (g *graph) AddEdge(from, to VertexId, weight int) error {
-	if from == to{
+	if from == to {
 		return errors.New("Can't add self loop")
 	}
 
-	if !g.CheckVertex(from) || !g.CheckVertex(to){
+	if !g.CheckVertex(from) || !g.CheckVertex(to) {
 		return errors.New("Vertices don't exist")
 	}
 
-	i,_:=g.edges[from][to]
-	j,_:=g.edges[to][from]
+	i, _ := g.edges[from][to]
+	j, _ := g.edges[to][from]
 
-	if i>0||j>0{
+	if i > 0 || j > 0 {
 		return errors.New("Edge already exists")
 	}
 
@@ -110,7 +110,7 @@ func (g *graph) AddEdge(from, to VertexId, weight int) error {
 
 	g.edges[from][to] = weight
 
-	if !g.isDirected{
+	if !g.isDirected {
 		g.edges[to][from] = weight
 	}
 
@@ -119,12 +119,75 @@ func (g *graph) AddEdge(from, to VertexId, weight int) error {
 	return nil
 }
 
-func main() {
-	m1 := make(map[VertexId]map[VertexId]int)
-	m2 := make(map[VertexId]int)
-	m2[1] = 2
-	m2[2] = 3
-	m1[1] = m2
-	i,_:=m1[1][2]
-	fmt.Println(i)
+func (g *graph) RemoveEdge(from, to VertexId) error {
+	i, _ := g.edges[from][to]
+	j, _ := g.edges[to][from]
+
+	if i == -1 || j == -1 {
+		return errors.New("Edge doesn't exist")
+	}
+
+	g.edges[from][to] = -1
+	if !g.isDirected {
+		g.edges[from][to] = -1
+	}
+
+	g.edgesCount--
+
+	return nil
+
 }
+
+func (g *graph) CheckEdge(from, to VertexId) bool {
+	connected, ok := g.edges[from]
+
+	if !ok {
+		return false
+	}
+
+	weight := connected[to]
+
+	return weight > 0
+}
+
+func (g *graph) EdgesCount() int {
+	return g.edgesCount
+}
+
+func (g *graph) GetEdge(from, to VertexId) int {
+	return g.edges[from][to]
+}
+
+type VerticesIterable interface {
+	VerticesIter() <-chan VertexId
+}
+
+type EdgesIterable interface {
+	EdgesIter() <-chan Edge
+}
+
+type vertexIterableHelper struct {
+	iterFunc func() <-chan VertexId
+}
+
+func (helper *vertexIterableHelper) VerticesIter() <-chan VertexId{
+	return helper.iterFunc()
+}
+
+func (g *graph) GetNeighbours(vertex VertexId) VerticesIterable {
+	iterator := func() <-chan VertexId {
+		ch := make(chan VertexId)
+		go func() {
+			if connected, ok := g.edges[vertex]; ok {
+				for vertexId, _ := range connected {
+					ch <- vertexId
+				}
+			}
+			close(ch)
+		}()
+		return ch
+	}
+
+	return VerticesIterable(&vertexIterableHelper{iterFunc: iterator})
+}
+
