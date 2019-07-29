@@ -45,7 +45,7 @@ func (g *graph) GetSuccessors(vertex VertexId) VerticesIterable{
 				}
 			}
 			close(ch)
-		}
+		}()
 		return ch
 	}
 	return VerticesIterable(&vertexIterableHelper{iterFunc:iterator})

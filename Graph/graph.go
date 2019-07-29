@@ -2,7 +2,6 @@ package Graph
 
 import (
 	"errors"
-	"fmt"
 )
 
 type VertexId int

@@ -1,48 +1,58 @@
 package Stack
 
-const arraySize = 10
+import "sync"
 
 type Stack struct {
-	topIndex  int
-	data [arraySize]int
+	stack []interface{}
+	len int
+	lock sync.Mutex
 }
 
-/* 入栈 */
-func (s *Stack) Push(i int) bool {
-	if s.topIndex == len(s.data){
-		return false
-	}
-	s.data[s.topIndex] = i
-	s.topIndex +=1
-	return true
+func New() *Stack{
+	s := &Stack{}
+	s.stack = make([]interface{},0)
+	s.len = 0
+
+	return s
 }
 
-/* 出栈 */
-func (s *Stack) Pop() (int,bool){
-	if s.topIndex == 0{
-		return 0,false
-	}
-	i := s.data[s.topIndex-1]
-	s.topIndex -=1
-	return i,true
+func (s Stack) Len() int{
+	s.lock.Lock()
+
+	defer s.lock.Unlock()
+
+	return s.len
 }
 
-/* 取顶端元素 */
-func (s *Stack) Peek() int{
-	return s.data[s.topIndex-1]
+func (s Stack) isEmpty() bool{
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	return s.len==0
 }
 
-/* 获取栈中存在的所有元素 */
-func (s *Stack) Get() []int{
-	return s.data[:s.topIndex]
+func (s *Stack) Pop() (ele interface{}) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	ele,s.stack = s.stack[0],s.stack[1:]
+	s.len--
+	return ele
 }
 
-/* 判断栈是否为空 */
-func (s *Stack) IsEmpty() bool{
-	return s.topIndex==0
+func (s *Stack) Push(ele interface{}) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	prepend := make([]interface{},1)
+	prepend[0] = ele
+	s.stack = append(prepend,s.stack...)
+	s.len++
 }
 
-/* 重新置栈顶索引为空，重新向栈中添加元素 */
-func (s *Stack) Empty() {
-	s.topIndex = 0
+func (s Stack) Peek() interface{} {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	return s.stack[0]
 }
