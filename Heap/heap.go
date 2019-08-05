@@ -72,14 +72,14 @@ func (h *Heap) Extract() (el Item) {
 
 	if h.Len() == 1 {
 		h.data = nil
-		return
+		return el
 	}
 
 	h.data = append([]Item{last}, h.data[1:h.Len()-1]...)
 	//我们删除堆顶元素并将数组的最后一个元素放到顶端， 减小堆的大小并让这个元素下沉到合适的位置
 	//将最后一个元素放到堆顶，然后下沉到合适位置
 	h.sink()
-	return
+	return el
 }
 
 func (h *Heap) Less(a, b Item) bool {
