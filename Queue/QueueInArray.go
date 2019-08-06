@@ -2,14 +2,14 @@ package Queue
 
 import "sync"
 
-type Queue struct {
+type QueueInArray struct {
 	queue []interface{}
 	len   int
 	lock  *sync.Mutex
 }
 
-func New() *Queue {
-	queue := &Queue{}
+func New() *QueueInArray {
+	queue := &QueueInArray{}
 	queue.queue = make([]interface{}, 0)
 	queue.len = 0
 	queue.lock = new(sync.Mutex)
@@ -17,31 +17,31 @@ func New() *Queue {
 	return queue
 }
 
-func (q Queue) Len() int {
+func (q QueueInArray) Len() int {
 	return q.len
 }
 
-func (q Queue) isEmpty() bool {
+func (q QueueInArray) isEmpty() bool {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	return q.len == 0
 }
 
-func (q *Queue) ExtractFirst() (el interface{}) {
+func (q *QueueInArray) ExtractFirst() (el interface{}) {
 	el = q.queue[0]
 	q.queue = q.queue[1:]
 	q.len--
 	return el
 }
 
-func (q *Queue) Push(el interface{}) {
+func (q *QueueInArray) Push(el interface{}) {
 	q.queue = append(q.queue, el)
 	q.len++
 
 	return
 }
 
-func (q *Queue) Peek() interface{} {
+func (q *QueueInArray) Peek() interface{} {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 
